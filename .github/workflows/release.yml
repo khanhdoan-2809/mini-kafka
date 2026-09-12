@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Resolve version from Git tag
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release tag: $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Build release
+        run: |
+          ./mvnw --batch-mode \
+          -Drevision="$VERSION" \
+          -Dgit.commit="$GITHUB_SHA" \
+          clean verify
+
+      - name: Create checksum
+        run: |
+          cd target
+          sha256sum "mini-kafka-$VERSION.jar" > "mini-kafka-$VERSION.jar.sha256"
+
+      - name: Create Github release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "target/mini-kafka-$VERSION.jar" \
+            "target/mini-kafka-$VERSION.jar.sha256" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

@@ -174,6 +174,10 @@ public class BrokerServer implements AutoCloseable {
 
     @Override
     public void close() {
+        if (!running) {
+            return;
+        }
+
         running = false;
         try {
             serverSocket.close();
@@ -185,6 +189,12 @@ public class BrokerServer implements AutoCloseable {
         }
 
         clientExecutor.shutdownNow();
+
+        try {
+            messageStore.close();
+        } catch (IOException exception) {
+            log.warn("Failed to close message store", exception);
+        }
 
         log.info("Mini Kafka broker stopped");
     }

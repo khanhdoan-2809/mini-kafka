@@ -1,0 +1,51 @@
+# <type>(<scope>): <summary>
+#
+# Why:
+# - Why is this change necessary?
+#
+# What:
+# - What changed?
+#
+# Testing:
+# - How was it verified?
+#
+# Types:
+# feat     new behavior
+# fix      bug fix
+# refactor code change without behavior change
+# perf     performance improvement
+# test     test changes
+# build    build/dependency/versioning changes
+# ci       CI/CD changes
+# docs     documentation
+# chore    maintenance
+#
+# Common scopes:
+# broker
+# protocol
+# storage
+# producer
+# consumer
+# ci
+# build
+#
+# Examples:
+#
+# feat(storage): add persistent append-only log
+#
+# Why:
+# - Records disappeared after broker restart.
+#
+# What:
+# - Add FileMessageStore.
+# - Add binary record encoding.
+# - Recover offsets from log files.
+#
+# Testing:
+# - Add restart recovery integration tests.
+#
+# ------------------------------------------------------------
+# Keep summary under ~72 characters when practical.
+# Use imperative mood.
+# Explain WHY, not only WHAT.
+# ------------------------------------------------------------
